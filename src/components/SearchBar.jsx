@@ -6,8 +6,9 @@ export default function SearchBar() {
     useContext(MovieContext);
 
     const onChange = (e) => {
-        setIncludeSynopsis(e.target.checked);  // Atualizando o estado com base na checkbox
-      };
+        const { checked } = e.target;
+        setIncludeSynopsis(checked); 
+    };
 
   return (
     <div className="flex items-center gap-4 mb-4">

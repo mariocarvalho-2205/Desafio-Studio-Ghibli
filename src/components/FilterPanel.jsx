@@ -10,15 +10,6 @@ export default function FilterPanel() {
 
   return (
     <div className="flex flex-wrap gap-4 mb-4 p-4 bg-gray-100 rounded">
-      {/* Lista simples dos filmes (apenas para debug)
-      {movies.map((movie) => {
-        if (!movie) return null;
-        return (
-          <p key={movie.id}>
-            {movie.title} - {movie.watched ? "Assistido" : "Não assistido"}
-          </p>
-        );
-      })} */}
 
       {/* Filtros por checkbox */}
       {["watched", "favorite", "hasNote"].map((key) => (

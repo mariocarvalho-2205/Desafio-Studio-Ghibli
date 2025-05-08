@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { MovieContext } from "../contexts/MovieContext";
-// import StarRating from "./StarRating";
-// import NoteModal from "./NoteModal";
+import StarRating from "./StarRating";
+import NoteModal from "./NoteModal";
 
 export default function MovieCard({ movie }) {
   const {
@@ -33,7 +33,7 @@ export default function MovieCard({ movie }) {
       <p className="text-sm text-gray-600">⏱️ {movie.running_time} min</p>
       <p className="text-sm">⭐ Score RT: {movie.rt_score}</p>
 
-      {/* <StarRating movie={movie} /> */}
+      <StarRating movie={movie} />
 
       <div className="flex gap-2 mt-2">
         <button
@@ -62,7 +62,7 @@ export default function MovieCard({ movie }) {
         </button>
       </div>
 
-      {/* <NoteModal movie={movie} /> */}
+      <NoteModal movie={movie} />
     </div>
   );
 }

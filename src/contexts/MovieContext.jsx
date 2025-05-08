@@ -3,32 +3,79 @@ import { createContext, useState, useEffect } from "react";
 export const MovieContext = createContext();
 
 export const MovieProvider = ({ children }) => {
-    const [includeSynopsis, setIncludeSynopsis] = useState(true); 
   const [movies, setMovies] = useState([]);
   const [filters, setFilters] = useState({
     watched: false,
     favorite: false,
+    stars: null,
     hasNote: false,
-    stars: "",
   });
 
-  
+  const [search, setSearch] = useState("");
+  const [includeSynopsis, setIncludeSynopsis] = useState(true);
+  const [personalRatings, setPersonalRatings] = useState({});
+  const [noteModalMovieId, setNoteModalMovieId] = useState(null);
 
-  const filteredMovies = movies.filter((movie) => {
-    // Aplica os filtros aqui, como watched, favorite, etc.
-    return true;  // Exemplo de filtro
-  });
+  const setPersonalRating = (movieId, rating) => {
+    setPersonalRatings((prev) => ({
+      ...prev,
+      [movieId]: rating,
+    }));
+  };
+
+  const toggleFavorite = (id) => {
+    setMovies((prev) =>
+      prev.map((movie) =>
+        movie.id === id ? { ...movie, favorite: !movie.favorite } : movie
+      )
+    );
+  };
+
+  const toggleWatched = (id) => {
+    setMovies((prev) =>
+      prev.map((movie) =>
+        movie.id === id ? { ...movie, watched: !movie.watched } : movie
+      )
+    );
+  };
+
+  const openNoteModal = (id) => {
+    setNoteModalMovieId(id);
+  };
+
+  const closeNoteModal = () => {
+    setNoteModalMovieId(null);
+  };
+
+  const addNoteToMovie = (id, note) => {
+    setMovies((prev) =>
+      prev.map((movie) => (movie.id === id ? { ...movie, note } : movie))
+    );
+  };
 
   const highlightSearch = (text) => {
-    const searchTerm = "someSearchTerm";  // Você pode substituir isso por um estado ou variável dinâmica de pesquisa
-    if (searchTerm) {
-      return text.replace(
-        new RegExp(`(${searchTerm})`, "gi"),
-        `<span class="bg-yellow-300">$1</span>`
-      );
-    }
-    return text;
+    if (!search) return text;
+    const regex = new RegExp(`(${search})`, "gi");
+    return text.replace(regex, "<mark>$1</mark>");
   };
+
+  const filteredMovies = movies.filter((movie) => {
+    const searchTarget = includeSynopsis
+      ? `${movie.title} ${movie.description}`
+      : movie.title;
+
+    const matchesSearch = searchTarget
+      .toLowerCase()
+      .includes(search.toLowerCase());
+
+    const matchesFilters =
+      (!filters.watched || movie.watched) &&
+      (!filters.favorite || movie.favorite) &&
+      (!filters.hasNote || !!movie.note) &&
+      (!filters.stars || personalRatings[movie.id] === filters.stars);
+
+    return matchesSearch && matchesFilters;
+  });
 
   useEffect(() => {
     fetch("https://ghibliapi.vercel.app/films")
@@ -47,7 +94,28 @@ export const MovieProvider = ({ children }) => {
   }, []);
 
   return (
-    <MovieContext.Provider value={{ movies, setMovies, filters, setFilters, filteredMovies, highlightSearch, setIncludeSynopsis, }}>
+    <MovieContext.Provider
+      value={{
+        movies,
+        setMovies,
+        filters,
+        setFilters,
+        search,
+        setSearch,
+        includeSynopsis,
+        setIncludeSynopsis,
+        personalRatings,
+        setPersonalRating,
+        filteredMovies,
+        toggleFavorite,
+        toggleWatched,
+        noteModalMovieId,
+        openNoteModal,
+        closeNoteModal,
+        addNoteToMovie,
+        highlightSearch,
+      }}
+    >
       {children}
     </MovieContext.Provider>
   );
