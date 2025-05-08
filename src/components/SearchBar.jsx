@@ -5,6 +5,10 @@ export default function SearchBar() {
   const { search, setSearch, includeSynopsis, setIncludeSynopsis } =
     useContext(MovieContext);
 
+    const onChange = (e) => {
+        setIncludeSynopsis(e.target.checked);  // Atualizando o estado com base na checkbox
+      };
+
   return (
     <div className="flex items-center gap-4 mb-4">
       <input
@@ -18,7 +22,7 @@ export default function SearchBar() {
         <input
           type="checkbox"
           checked={includeSynopsis}
-          onChange={(e) => setIncludeSynopsis(e.target.checked)}
+          onChange={onChange}
         />
         Incluir sinopse
       </label>
