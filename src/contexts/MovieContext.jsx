@@ -1,30 +1,34 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import axios from '../data/api';
+import { createContext, useState, useEffect } from "react";
 
 export const MovieContext = createContext();
 
 export const MovieProvider = ({ children }) => {
   const [movies, setMovies] = useState([]);
-  const [searchText, setSearchText] = useState('');
-  const [includeSynopsis, setIncludeSynopsis] = useState(false);
-
-  useEffect(() => {
-    const fetchMovies = async () => {
-        await axios.get('/films')
-        .then((res) => setMovies(res.data))
-        .catch((err) => console.error(err));
-    };
-    fetchMovies();
-}, []);
-
-  const filteredMovies = movies.filter(movie => {
-    const textMatch = movie.title.toLowerCase().includes(searchText.toLowerCase());
-    const synopsisMatch = includeSynopsis && movie.description.toLowerCase().includes(searchText.toLowerCase());
-    return textMatch || synopsisMatch;
+  const [filters, setFilters] = useState({
+    watched: false,
+    favorite: false,
+    hasNote: false,
+    stars: "",
   });
 
+  useEffect(() => {
+    fetch("https://ghibliapi.vercel.app/films")
+      .then((res) => res.json())
+      .then((data) => {
+        const formatted = data.map((movie) => ({
+          ...movie,
+          watched: false,
+          favorite: false,
+          hasNote: false,
+          note: "",
+          stars: 0,
+        }));
+        setMovies(formatted);
+      });
+  }, []);
+
   return (
-    <MovieContext.Provider value={{ movies, setMovies, filteredMovies, searchText, setSearchText, includeSynopsis, setIncludeSynopsis }}>
+    <MovieContext.Provider value={{ movies, setMovies, filters, setFilters }}>
       {children}
     </MovieContext.Provider>
   );
