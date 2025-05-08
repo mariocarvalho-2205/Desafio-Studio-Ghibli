@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { MovieContext } from "../contexts/MovieContext";
 
 export default function StarRating({ movie }) {
-  const { setPersonalRating } = useContext(MovieContext);
+  const { personalRating, setPersonalRating } = useContext(MovieContext);
 
   return (
     <div className="flex gap-1 text-yellow-500">

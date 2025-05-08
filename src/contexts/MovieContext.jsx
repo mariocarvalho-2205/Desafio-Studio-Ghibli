@@ -47,10 +47,12 @@ export const MovieProvider = ({ children }) => {
     setNoteModalMovieId(null);
   };
 
-  const addNoteToMovie = (id, note) => {
-    setMovies((prev) =>
-      prev.map((movie) => (movie.id === id ? { ...movie, note } : movie))
+  const addNoteToMovie = (id, note, personalRating) => {
+    const updated = movies.map((movie) =>
+      movie.id === id ? { ...movie, note, personalRating } : movie
     );
+    setMovies(updated);
+    localStorage.setItem("movies", JSON.stringify(updated));
   };
 
   const highlightSearch = (text) => {
@@ -78,6 +80,10 @@ export const MovieProvider = ({ children }) => {
   });
 
   useEffect(() => {
+    const savedMovies = localStorage.getItem("movies");
+    if (savedMovies) {
+      setMovies(JSON.parse(savedMovies));
+    } else {
     fetch("https://ghibliapi.vercel.app/films")
       .then((res) => res.json())
       .then((data) => {
@@ -88,10 +94,19 @@ export const MovieProvider = ({ children }) => {
           hasNote: false,
           note: "",
           stars: 0,
+          personalRating: 0,
         }));
         setMovies(formatted);
       });
+    }
   }, []);
+
+    // Salvar no localStorage sempre que movies mudar
+    useEffect(() => {
+        if (movies.length > 0) {
+          localStorage.setItem("movies", JSON.stringify(movies));
+        }
+      }, [movies]);
 
   return (
     <MovieContext.Provider
