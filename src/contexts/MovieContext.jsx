@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import axios from '../data/api';
 
-const MovieContext = createContext();
+export const MovieContext = createContext();
 
 export const MovieProvider = ({ children }) => {
   const [movies, setMovies] = useState([]);
@@ -10,11 +10,12 @@ export const MovieProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchMovies = async () => {
-      const { data } = await axios.get('/films');
-      setMovies(data);
+        await axios.get('/films')
+        .then((res) => setMovies(res.data))
+        .catch((err) => console.error(err));
     };
     fetchMovies();
-  }, []);
+}, []);
 
   const filteredMovies = movies.filter(movie => {
     const textMatch = movie.title.toLowerCase().includes(searchText.toLowerCase());
@@ -28,5 +29,3 @@ export const MovieProvider = ({ children }) => {
     </MovieContext.Provider>
   );
 };
-
-export const useMovies = () => useContext(MovieContext);
