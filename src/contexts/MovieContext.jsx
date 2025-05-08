@@ -12,6 +12,8 @@ export const MovieProvider = ({ children }) => {
     stars: "",
   });
 
+  
+
   const filteredMovies = movies.filter((movie) => {
     // Aplica os filtros aqui, como watched, favorite, etc.
     return true;  // Exemplo de filtro
@@ -45,7 +47,7 @@ export const MovieProvider = ({ children }) => {
   }, []);
 
   return (
-    <MovieContext.Provider value={{ movies, setMovies, filters, setFilters, filteredMovies, highlightSearch }}>
+    <MovieContext.Provider value={{ movies, setMovies, filters, setFilters, filteredMovies, highlightSearch, setIncludeSynopsis, }}>
       {children}
     </MovieContext.Provider>
   );
