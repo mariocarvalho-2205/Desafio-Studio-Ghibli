@@ -1,20 +1,25 @@
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, useCallback } from "react";
 import { MovieContext } from "../contexts/MovieContext";
 
 export default function NoteModal() {
   const { noteModalMovieId, movies, closeNoteModal, addNoteToMovie } =
     useContext(MovieContext);
 
+  // Evita que o modal seja re-renderizado de forma desnecessária
   const movie = movies.find((m) => m.id === noteModalMovieId);
   const [note, setNote] = useState("");
   const [rating, setRating] = useState(0);
 
-  useEffect(() => {
+  const setMovieData = useCallback(() => {
     if (movie) {
       setNote(movie.note || "");
       setRating(movie.personalRating || 0);
     }
   }, [movie]);
+
+  useEffect(() => {
+    setMovieData();
+  }, [movie, setMovieData]);
 
   if (!noteModalMovieId || !movie) return null;
 
@@ -64,11 +69,14 @@ export default function NoteModal() {
             </span>
           </div>
         </div>
+
         <p className="text-sm text-gray-600 mb-1 font-semibold">
           Sua Anotação:
         </p>
+
+        {/* Ajustes no textarea */}
         <textarea
-          className="w-full border p-2 rounded"
+          className="w-full border p-2 rounded h-32 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
           rows={4}
           value={note}
           onChange={(e) => setNote(e.target.value)}

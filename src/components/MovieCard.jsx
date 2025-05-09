@@ -14,19 +14,25 @@ export default function MovieCard({ movie }) {
   const rating = personalRating[movie.id] || 0;
   const highlightedDescription = highlightSearch(movie.description);
 
+  const formatRunningTime = (minutes) => {
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hrs}h ${mins}min`;
+  };
+
   return (
-    <div className="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden h-full flex flex-col transition-all duration-200 hover:shadow-lg">
+    <div className="rounded-2xl border-none bg-white text-gray-800 shadow-md overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-xl hover:scale-[1.02] animate-fadeIn">
       {/* Imagem */}
       <div className="relative aspect-[2/3] overflow-hidden">
         <img
           loading="lazy"
           src={movie.image}
           alt={movie.title}
-          className="object-cover transition-transform duration-300 hover:scale-105"
+          className="object-cover transition-transform duration-300 hover:scale-105 w-full h-full"
         />
         <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
           {movie.note && (
-            <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-blue-500 text-white bg-opacity-80 backdrop-blur-sm">
+            <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-blue-500 text-white bg-opacity-80 backdrop-blur-sm shadow">
               <svg
                 className="w-3 h-3 mr-1"
                 fill="none"
@@ -42,7 +48,7 @@ export default function MovieCard({ movie }) {
           )}
           {/* estrelas image rating */}
           {rating > 0 && (
-            <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent hover:bg-secondary/80 bg-yellow-500 text-white bg-opacity-80 backdrop-blur-sm">
+            <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-yellow-500 text-white bg-opacity-80 backdrop-blur-sm shadow">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -62,10 +68,10 @@ export default function MovieCard({ movie }) {
       {/* Conteudo */}
       <div className="flex-grow p-4">
         {/* Titulo */}
-        <h2 className="text-xl font-bold">{movie.title}</h2>
-        <div className="flex justify-between items-center">
+        <h2 className="ttext-xl font-bold text-indigo-700">{movie.title}</h2>
+        <div className="flex justify-between items-center text-sm text-gray-500 mb-2">
           <span className="text-sm">
-            {movie.release_date} - {movie.running_time} min
+            {movie.release_date} - {formatRunningTime(movie.running_time)}
           </span>
         </div>
 
@@ -78,44 +84,60 @@ export default function MovieCard({ movie }) {
           </p>
         </div>
       </div>
-      <div className="p-4">
+      <div className="p-4 min-h-[140px]">
+        <p className="text-sm text-gray-700">🎬 {movie.director}</p>
+        <p className="text-sm text-gray-700">📦 {movie.producer}</p>
         <p className="text-sm text-gray-700">
-          🎬 {movie.director} | 📦 {movie.producer}
+          ⏱️ {formatRunningTime(movie.running_time)}
         </p>
-        <p className="text-sm text-gray-600">⏱️ {movie.running_time} min</p>
-        <p className="text-sm">⭐ {movie.rt_score}%</p>
+        <p className="text-sm text-gray-700">⭐ {movie.rt_score}%</p>
         <StarRating movie={movie} />
-        {movie.note && (
-          <p className="mt-2 text-sm text-gray-700">
-            📝 <strong>Nota:</strong> {movie.note}
-          </p>
-        )}
+
+        {movie.note && <div className=""></div>}
+
+        <div className="min-h-[60px] mt-2">
+          {movie.note ? (
+            <div className="min-h-[60px] rounded-2xl p-2 border border-blue-400 bg-blue-100">
+              <p className="text-sm text-blue-600">
+                📝 <strong>Nota:</strong> {movie.note}
+              </p>
+            </div>
+          ) : (
+            <p className="invisible text-sm">
+              📝 <strong>Nota:</strong> Placeholder
+            </p>
+          )}
+        </div>
       </div>
 
-      <div className="flex gap-2 mt-2 p-4">
+      <div className="flex flex-wrap gap-2 mt-2 p-4">
         <button
           onClick={() => toggleWatched(movie.id)}
-          className={`px-2 py-1 rounded text-sm ${
-            movie.watched ? "bg-green-200" : "bg-gray-200"
+          className={`px-2 py-1 rounded text-sm transition ${
+            movie.watched
+              ? "bg-green-200 text-green-800"
+              : "bg-gray-200 text-gray-800"
           }`}
         >
-          {movie.watched ? "Assistido" : "Marcar Assistido"}
+          {movie.watched ? "✔ Assistido" : "👁 Marcar Assistido"}
         </button>
 
         <button
           onClick={() => toggleFavorite(movie.id)}
-          className={`p-2 rounded text-sm ${
-            movie.favorite ? "bg-yellow-200" : "bg-gray-200"
+          className={`px-2 py-1 rounded text-sm transition ${
+            movie.favorite
+              ? "bg-yellow-200 text-yellow-800"
+              : "bg-gray-200 text-gray-800"
           }`}
         >
-          {movie.favorite ? "Favorito " : "Favoritar"}
+          {movie.favorite ? "⭐ Favorito" : "☆ Favoritar"}
         </button>
 
         <button
           onClick={() => openNoteModal(movie.id)}
-          className="px-2 py-1 bg-blue-200 text-sm rounded"
+          className="px-2 py-1 bg-blue-200 text-blue-800 text-sm rounded transition"
         >
-          {movie.note ? "Editar Nota" : "Adicionar Nota"}
+          {movie.note ? "✏️ Editar Nota" : "📝 Adicionar Nota"}
         </button>
       </div>
 

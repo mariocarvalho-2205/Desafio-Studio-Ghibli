@@ -8,14 +8,28 @@ const Home = () => {
   const { filteredMovies = [] } = useContext(MovieContext);
 
   return (
-    <div className="p-56">
-      <h1 className="text-2xl font-bold mb-4">Studio Ghibli Collection</h1>
-      <p>Explore the magical world of Studio Ghibli films. Mark your favorites and keep track of what you've watched.</p>
-      <SearchBar />
-      <FilterPanel />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="px-4 sm:px-6 md:px-10 lg:px-20 xl:px-32 py-10 bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen animate-fadeIn">
+      <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-center text-indigo-700 mb-4">
+        Studio Ghibli Collection
+      </h1>
+
+      <p className="text-center text-gray-700 mb-8 text-sm sm:text-base md:text-lg">
+        Explore o mundo mágico dos filmes do Studio Ghibli. Marque seus favoritos e acompanhe os que já assistiu.
+      </p>
+
+      <div className="animate-slideUp">
+        <SearchBar />
+        <FilterPanel />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6 mt-8 transition-all duration-500 ease-in-out">
         {filteredMovies.map((movie) => (
-          <MovieCard key={movie.id} movie={movie} />
+          <div
+            key={movie.id}
+            className="transform transition-all duration-500 ease-in-out animate-fadeIn"
+          >
+            <MovieCard movie={movie} />
+          </div>
         ))}
       </div>
     </div>
