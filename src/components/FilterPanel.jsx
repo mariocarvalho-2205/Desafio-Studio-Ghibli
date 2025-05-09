@@ -3,12 +3,12 @@ import { MovieContext } from "../contexts/MovieContext";
 
 export default function FilterPanel() {
   const { filters, setFilters } = useContext(MovieContext);
-
   const [sortLabel, setSortLabel] = useState("Ordenação");
   const [starsLabel, setStarsLabel] = useState("Estrelas");
 
   const updateFilter = (key, value) => {
-    setFilters({ ...filters, [key]: value });
+    console.log(`Atualizando filtro: ${key} = `, value);
+    setFilters(prev => ({ ...prev, [key]: value }));
   };
 
   const toggleFilter = (key) => {
@@ -39,22 +39,34 @@ export default function FilterPanel() {
       updateFilter("stars", null);
       setStarsLabel("Todas");
     } else {
-      // Converte para número
       updateFilter("stars", Number(value));
       setStarsLabel(`${value} ⭐`);
     }
   };
 
-  const handleSortChange = (value, label) => {
-    if (value === "") {
+  const handleSortChange = (event) => {
+    const value = event.target.value;
+    const label = event.target.options[event.target.selectedIndex].text;
+    
+    console.log(`Mudando ordenação para: ${value} (${label})`);
+    
+    if (!value || value === "default") {
       updateFilter("sortField", "");
       updateFilter("sortOrder", "asc");
+      setSortLabel("Ordenação");
     } else {
       const [field, order] = value.split(":");
-      updateFilter("sortField", field);
-      updateFilter("sortOrder", order);
+      console.log(`Campo: ${field}, Ordem: ${order}`);
+      
+      // Atualiza os filtros com os novos valores
+      setFilters(prev => ({
+        ...prev,
+        sortField: field,
+        sortOrder: order
+      }));
+      
+      setSortLabel(label);
     }
-    setSortLabel(label);
   };
 
   const filterButtons = [
@@ -62,6 +74,12 @@ export default function FilterPanel() {
     { key: "favorite", label: "Favorito", color: "yellow" },
     { key: "hasNote", label: "Com Anotação", color: "blue" },
   ];
+
+  // Determina o valor atual do select de ordenação
+  const getCurrentSortValue = () => {
+    if (!filters.sortField) return "default";
+    return `${filters.sortField}:${filters.sortOrder}`;
+  };
 
   return (
     <div className="flex flex-col gap-4 mb-4 p-4 bg-gray-100 rounded">
@@ -86,12 +104,12 @@ export default function FilterPanel() {
         {/* Filtro de estrelas customizado */}
         <div className="relative">
           <select
-            value={filters.stars || ""}
+            value={filters.stars === null ? "" : filters.stars}
             onChange={(e) => handleStarsChange(e.target.value)}
             className="appearance-none px-3 py-1 rounded text-sm font-medium border border-gray-300 bg-white text-gray-700 cursor-pointer"
             style={{ backgroundImage: "none" }}
           >
-            <option disabled className="font-bold">
+            <option value="" disabled={filters.stars !== null}>
               -- Filtrar por estrelas --
             </option>
             <option value="">Todas</option>
@@ -108,17 +126,15 @@ export default function FilterPanel() {
         {/* Filtro de ordenação customizado */}
         <div className="relative">
           <select
-            onChange={(e) => {
-              const selected = e.target.options[e.target.selectedIndex];
-              handleSortChange(selected.value, selected.textContent);
-            }}
+            value={getCurrentSortValue()}
+            onChange={handleSortChange}
             className="appearance-none px-3 py-1 rounded text-sm font-medium border border-gray-300 bg-white text-gray-700 cursor-pointer"
             style={{ backgroundImage: "none" }}
           >
-            <option disabled className="font-bold">
+            <option value="default" disabled={!!filters.sortField}>
               -- Ordenar por --
             </option>
-            <option value="">Default</option>
+            <option value="default">Default</option>
             <option value="title:asc">Título A-Z</option>
             <option value="title:desc">Título Z-A</option>
             <option value="running_time:desc">Maior duração</option>
@@ -152,6 +168,11 @@ export default function FilterPanel() {
         {filters.stars === "none" && (
           <span className="px-2 py-1 rounded text-xs bg-gray-200 text-gray-800 border border-gray-300">
             Sem Estrelas
+          </span>
+        )}
+        {typeof filters.stars === "number" && (
+          <span className="px-2 py-1 rounded text-xs bg-yellow-100 text-yellow-800 border border-yellow-300">
+            {filters.stars} ⭐
           </span>
         )}
 
