@@ -7,17 +7,19 @@ export const MovieProvider = ({ children }) => {
   const [filters, setFilters] = useState({
     watched: false,
     favorite: false,
-    stars: null,
     hasNote: false,
+    stars: null, // null | 1 | 2 | 3 | 4 | 5 | 'with' | 'none'
+    sortField: null, // 'title' | 'release_date' | 'stars'
+    sortOrder: "asc", // 'asc' | 'desc'
   });
 
   const [search, setSearch] = useState("");
   const [includeSynopsis, setIncludeSynopsis] = useState(true);
-  const [personalRatings, setPersonalRatings] = useState({});
+  const [personalRating, setPersonalRatingState] = useState({});
   const [noteModalMovieId, setNoteModalMovieId] = useState(null);
 
   const setPersonalRating = (movieId, rating) => {
-    setPersonalRatings((prev) => ({
+    setPersonalRatingState((prev) => ({
       ...prev,
       [movieId]: rating,
     }));
@@ -47,11 +49,14 @@ export const MovieProvider = ({ children }) => {
     setNoteModalMovieId(null);
   };
 
-  const addNoteToMovie = (id, note, personalRating) => {
+  const addNoteToMovie = (id, note, personalRatingValue) => {
     const updated = movies.map((movie) =>
-      movie.id === id ? { ...movie, note, personalRating } : movie
+      movie.id === id
+        ? { ...movie, note, personalRating: personalRatingValue }
+        : movie
     );
     setMovies(updated);
+    setPersonalRating(id, personalRatingValue);
     localStorage.setItem("movies", JSON.stringify(updated));
   };
 
@@ -61,7 +66,8 @@ export const MovieProvider = ({ children }) => {
     return text.replace(regex, "<mark>$1</mark>");
   };
 
-  const filteredMovies = movies.filter((movie) => {
+const filteredMovies = movies
+  .filter((movie) => {
     const searchTarget = includeSynopsis
       ? `${movie.title} ${movie.description}`
       : movie.title;
@@ -70,43 +76,91 @@ export const MovieProvider = ({ children }) => {
       .toLowerCase()
       .includes(search.toLowerCase());
 
-    const matchesFilters =
-      (!filters.watched || movie.watched) &&
-      (!filters.favorite || movie.favorite) &&
-      (!filters.hasNote || !!movie.note) &&
-      (!filters.stars || personalRatings[movie.id] === filters.stars);
+    const rating = personalRating[movie.id] || 0;
 
-    return matchesSearch && matchesFilters;
+    const matchesWatched = !filters.watched || movie.watched;
+    const matchesFavorite = !filters.favorite || movie.favorite;
+    const matchesHasNote = !filters.hasNote || !!movie.note;
+
+    let matchesStars = true;
+    if (filters.stars === "with") {
+      matchesStars = rating > 0;
+    } else if (filters.stars === "none") {
+      matchesStars = rating === 0;
+    } else if (typeof filters.stars === "number") {
+      matchesStars = rating === filters.stars;
+    }
+
+    return (
+      matchesSearch &&
+      matchesWatched &&
+      matchesFavorite &&
+      matchesHasNote &&
+      matchesStars
+    );
+  })
+  .sort((a, b) => {
+    if (!filters.sortField) return 0;
+
+    const field = filters.sortField;
+    let valA, valB;
+
+    if (field === "stars") {
+      valA = personalRating[a.id] || 0;
+      valB = personalRating[b.id] || 0;
+    } else if (["rt_score", "release_date", "running_time"].includes(field)) {
+      valA = parseInt(a[field], 10);
+      valB = parseInt(b[field], 10);
+    } else {
+      valA = a[field];
+      valB = b[field];
+    }
+
+    if (typeof valA === "string") {
+      return filters.sortOrder === "asc"
+        ? valA.localeCompare(valB)
+        : valB.localeCompare(valA);
+    }
+
+    return filters.sortOrder === "asc" ? valA - valB : valB - valA;
   });
 
   useEffect(() => {
     const savedMovies = localStorage.getItem("movies");
     if (savedMovies) {
-      setMovies(JSON.parse(savedMovies));
-    } else {
-    fetch("https://ghibliapi.vercel.app/films")
-      .then((res) => res.json())
-      .then((data) => {
-        const formatted = data.map((movie) => ({
-          ...movie,
-          watched: false,
-          favorite: false,
-          hasNote: false,
-          note: "",
-          stars: 0,
-          personalRating: 0,
-        }));
-        setMovies(formatted);
+      const parsed = JSON.parse(savedMovies);
+      setMovies(parsed);
+
+      const ratings = {};
+      parsed.forEach((movie) => {
+        if (movie.personalRating) {
+          ratings[movie.id] = movie.personalRating;
+        }
       });
+      setPersonalRatingState(ratings);
+    } else {
+      fetch("https://ghibliapi.vercel.app/films")
+        .then((res) => res.json())
+        .then((data) => {
+          const formatted = data.map((movie) => ({
+            ...movie,
+            watched: false,
+            favorite: false,
+            hasNote: false,
+            note: "",
+            stars: 0,
+            personalRating: 0,
+          }));
+          setMovies(formatted);
+        });
     }
   }, []);
 
-    // Salvar no localStorage sempre que movies mudar
-    useEffect(() => {
-        if (movies.length > 0) {
-          localStorage.setItem("movies", JSON.stringify(movies));
-        }
-      }, [movies]);
+  useEffect(() => {
+    if (movies.length > 0) {
+      localStorage.setItem("movies", JSON.stringify(movies));
+    }
+  }, [movies]);
 
   return (
     <MovieContext.Provider
@@ -119,7 +173,7 @@ export const MovieProvider = ({ children }) => {
         setSearch,
         includeSynopsis,
         setIncludeSynopsis,
-        personalRatings,
+        personalRating,
         setPersonalRating,
         filteredMovies,
         toggleFavorite,
