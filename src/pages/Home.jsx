@@ -9,10 +9,6 @@ import Toast from "../components/Toast";
 const Home = () => {
   const { 
     filteredMovies, 
-    search, 
-    setSearch, 
-    includeSynopsis, 
-    setIncludeSynopsis,
     isLoading,
     error
   } = useContext(MovieContext);
@@ -67,7 +63,6 @@ const Home = () => {
           ))}
         </div>
 
-        {/* O NoteModal deve ser instanciado uma única vez fora dos cards */}
         <NoteModal movie={filteredMovies}/>
         <Toast />
       </div>

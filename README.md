@@ -96,10 +96,3 @@ src/
    - Persistência automática no localStorage
    - Tratamento de erros com mensagens amigáveis
 
-## 🛠️ Melhorias Futuras
-
-- [ ] Implementar testes unitários
-- [ ] Adicionar mais filtros e ordenações
-- [ ] Melhorar acessibilidade
-- [ ] Implementar temas (claro/escuro)
-- [ ] Adicionar mais animações e transições

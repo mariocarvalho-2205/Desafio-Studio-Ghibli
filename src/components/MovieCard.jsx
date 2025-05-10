@@ -1,7 +1,6 @@
 import { useContext, useState } from "react";
 import { MovieContext } from "../contexts/MovieContext";
 import StarRating from "./StarRating";
-//import NoteModal from "./NoteModal";
 
 export default function MovieCard({ movie }) {
   const { 
@@ -112,7 +111,7 @@ export default function MovieCard({ movie }) {
         </div>
       </div>
 
-      {/* Seção de nota com altura fixa */}
+      {/* Seção de nota */}
       <div className="px-3 h-[60px]">
         {movie.note ? (
           <div className="h-full rounded-2xl p-2 border border-blue-400 bg-blue-100">
@@ -129,7 +128,7 @@ export default function MovieCard({ movie }) {
         )}
       </div>
 
-      {/* Botões com margem fixa */}
+      {/* Botões */}
       <div className="flex flex-wrap gap-1 p-3 mt-auto">
         <button
           onClick={() => toggleWatched(movie.id)}
