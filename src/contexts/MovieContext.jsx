@@ -1,9 +1,13 @@
 import { createContext, useState, useEffect } from "react";
+import { movieService } from "../services/movieService";
+import { notificationService } from "../services/notificationService";
 
 export const MovieContext = createContext();
 
 export const MovieProvider = ({ children }) => {
   const [movies, setMovies] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
     watched: false,
     favorite: false,
@@ -18,8 +22,8 @@ export const MovieProvider = ({ children }) => {
   const [personalRating, setPersonalRatingState] = useState({});
   const [noteModalOpen, setNoteModalOpen] = useState(false);
   const [noteModalMovieId, setNoteModalMovieId] = useState(null);
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastType, setToastType] = useState("");
+  const [toastMessage, setToastMessage] = useState(null);
+  const [toastType, setToastType] = useState(null);
 
   // Log de estado para debug
   useEffect(() => {
@@ -30,38 +34,43 @@ export const MovieProvider = ({ children }) => {
 
   // Carregar filmes e ratings na inicialização
   useEffect(() => {
-    const savedMovies = localStorage.getItem("movies");
-    const savedRatings = localStorage.getItem("personalRatings");
-    
-    if (savedMovies) {
+    const loadInitialData = async () => {
       try {
-        const parsed = JSON.parse(savedMovies);
-        setMovies(parsed);
-      } catch (error) {
-        console.error("Erro ao carregar filmes do localStorage:", error);
-        fetchMoviesFromAPI();
-      }
-    } else {
-      fetchMoviesFromAPI();
-    }
+        setIsLoading(true);
+        setError(null);
 
-    if (savedRatings) {
-      try {
-        const parsed = JSON.parse(savedRatings);
-        setPersonalRatingState(parsed);
+        const savedMovies = movieService.loadMoviesFromStorage();
+        const savedRatings = movieService.loadRatingsFromStorage();
+        
+        if (savedMovies) {
+          setMovies(savedMovies);
+        } else {
+          const fetchedMovies = await movieService.fetchMovies();
+          setMovies(fetchedMovies);
+        }
+
+        if (savedRatings) {
+          setPersonalRatingState(savedRatings);
+        }
       } catch (error) {
-        console.error("Erro ao carregar ratings do localStorage:", error);
+        setError("Erro ao carregar os filmes. Por favor, tente novamente.");
+        console.error("Erro ao carregar dados iniciais:", error);
+      } finally {
+        setIsLoading(false);
       }
-    }
+    };
+
+    loadInitialData();
   }, []);
 
+  useEffect(() => {
+    if (movies.length > 0) {
+      movieService.saveMoviesToStorage(movies);
+    }
+  }, [movies]);
+
   const showToast = (message, type) => {
-    setToastMessage(message);
-    setToastType(type);
-    setTimeout(() => {
-      setToastMessage(null);
-      setToastType(null);
-    }, 1500);
+    notificationService.showToast(message, type, setToastMessage, setToastType);
   };
 
   const setPersonalRating = (movieId, rating) => {
@@ -73,7 +82,7 @@ export const MovieProvider = ({ children }) => {
         ...prev,
         [movieId]: rating,
       };
-      localStorage.setItem("personalRatings", JSON.stringify(newRatings));
+      movieService.saveRatingsToStorage(newRatings);
       return newRatings;
     });
 
@@ -199,33 +208,6 @@ export const MovieProvider = ({ children }) => {
     setNoteModalMovieId(null);
   };
 
-  // Função auxiliar para buscar filmes da API
-  const fetchMoviesFromAPI = () => {
-    fetch("https://ghibliapi.vercel.app/films")
-      .then((res) => res.json())
-      .then((data) => {
-        const formatted = data.map((movie) => ({
-          ...movie,
-          watched: false,
-          favorite: false,
-          hasNote: false,
-          note: "",
-          personalRating: 0,
-        }));
-        setMovies(formatted);
-      })
-      .catch((error) => {
-        console.error("Erro ao buscar filmes da API:", error);
-      });
-  };
-
-  // Salvar filmes quando houver mudanças
-  useEffect(() => {
-    if (movies.length > 0) {
-      localStorage.setItem("movies", JSON.stringify(movies));
-    }
-  }, [movies]);
-
   return (
     <MovieContext.Provider
       value={{
@@ -250,6 +232,8 @@ export const MovieProvider = ({ children }) => {
         toastMessage,
         toastType,
         showToast,
+        isLoading,
+        error,
       }}
     >
       {children}

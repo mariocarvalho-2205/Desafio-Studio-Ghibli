@@ -7,7 +7,38 @@ import NoteModal from "../components/NoteModal";
 import Toast from "../components/Toast";
 
 const Home = () => {
-  const { filteredMovies = [] } = useContext(MovieContext);
+  const { 
+    filteredMovies, 
+    search, 
+    setSearch, 
+    includeSynopsis, 
+    setIncludeSynopsis,
+    isLoading,
+    error
+  } = useContext(MovieContext);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-100 p-4">
+        <div className="flex items-center justify-center h-[calc(100vh-2rem)]">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-100 p-4">
+        <div className="flex items-center justify-center h-[calc(100vh-2rem)]">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <strong className="font-bold">Erro! </strong>
+            <span className="block sm:inline">{error}</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 animate-fadeIn">

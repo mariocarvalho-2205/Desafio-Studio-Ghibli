@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { MovieContext } from "../contexts/MovieContext";
 import StarRating from "./StarRating";
-import NoteModal from "./NoteModal";
+//import NoteModal from "./NoteModal";
 
 export default function MovieCard({ movie }) {
   const { 
