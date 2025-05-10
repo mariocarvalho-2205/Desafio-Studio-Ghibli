@@ -4,18 +4,29 @@ import { MovieContext } from "../contexts/MovieContext";
 export default function Toast() {
   const { toastMessage, toastType } = useContext(MovieContext);
   const [isVisible, setIsVisible] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
     if (toastMessage) {
+      setIsExiting(false);
       setIsVisible(true);
-      const timer = setTimeout(() => {
+      
+      const exitTimer = setTimeout(() => {
+        setIsExiting(true);
+      }, 2700);
+
+      const hideTimer = setTimeout(() => {
         setIsVisible(false);
-      }, 2700); // Começar a animação de saída 300ms antes do timeout
-      return () => clearTimeout(timer);
+      }, 3000);
+
+      return () => {
+        clearTimeout(exitTimer);
+        clearTimeout(hideTimer);
+      };
     }
   }, [toastMessage]);
 
-  if (!toastMessage) return null;
+  if (!isVisible) return null;
 
   const getToastStyles = () => {
     switch (toastType) {
@@ -33,7 +44,11 @@ export default function Toast() {
   };
 
   return (
-    <div className={`fixed top-4 right-4 z-50 ${isVisible ? 'animate-slide-in' : 'animate-slide-out'}`}>
+    <div 
+      className={`fixed top-4 right-4 z-50 transition-all duration-300 transform ${
+        isExiting ? 'translate-x-full opacity-0' : 'translate-x-0 opacity-100'
+      }`}
+    >
       <div className={`px-4 py-2 rounded-lg shadow-lg ${getToastStyles()}`}>
         {toastMessage}
       </div>
