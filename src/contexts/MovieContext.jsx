@@ -121,7 +121,7 @@ export const MovieProvider = ({ children }) => {
     return text.replace(regex, "<mark>$1</mark>");
   };
 
-  // Função de ordenação simplificada e robusta
+  // Função de ordenação simplificada 
   const sortMovies = (a, b) => {
     // Se não há campo de ordenação, retorna a ordem original
     if (!filters.sortField) return 0;
