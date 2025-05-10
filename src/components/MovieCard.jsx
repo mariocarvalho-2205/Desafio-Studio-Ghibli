@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { MovieContext } from "../contexts/MovieContext";
 import StarRating from "./StarRating";
 
+// Componente que exibe um filme individual
 export default function MovieCard({ movie }) {
   const { 
     toggleFavorite, 

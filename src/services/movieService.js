@@ -1,6 +1,7 @@
 import { apiService } from './apiService';
 
 export const movieService = {
+  // Busca filmes da API e salva no localStorage
   async fetchMovies() {
     try {
       const data = await apiService.getMovies();
@@ -18,12 +19,14 @@ export const movieService = {
     }
   },
 
+  // Persiste os filmes no localStorage
   saveMoviesToStorage(movies) {
     if (movies.length > 0) {
       localStorage.setItem("movies", JSON.stringify(movies));
     }
   },
 
+  // Recupera os filmes do localStorage
   loadMoviesFromStorage() {
     const savedMovies = localStorage.getItem("movies");
     if (savedMovies) {

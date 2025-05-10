@@ -6,6 +6,7 @@ import { MovieContext } from "../contexts/MovieContext";
 import NoteModal from "../components/NoteModal";
 import Toast from "../components/Toast";
 
+// Página principal com grid responsivo
 const Home = () => {
   const { 
     filteredMovies, 

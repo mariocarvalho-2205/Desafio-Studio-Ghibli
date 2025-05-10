@@ -34,6 +34,7 @@ export const MovieProvider = ({ children }) => {
 
   // Carregar filmes e ratings na inicialização
   useEffect(() => {
+    // Função que carrega os dados iniciais da aplicação
     const loadInitialData = async () => {
       try {
         setIsLoading(true);
@@ -73,6 +74,7 @@ export const MovieProvider = ({ children }) => {
     notificationService.showToast(message, type, setToastMessage, setToastType);
   };
 
+  // Função que permite ao usuário avaliar um filme
   const setPersonalRating = (movieId, rating) => {
     const movie = movies.find(m => m.id === movieId);
     const action = rating === 0 ? "removida" : "adicionada";
@@ -89,6 +91,7 @@ export const MovieProvider = ({ children }) => {
     showToast(`Avaliação ${action} para ${movie.title}`, "rating");
   };
 
+  // Função que gerencia os filmes favoritos
   const toggleFavorite = (id) => {
     const movie = movies.find(m => m.id === id);
     const action = movie.favorite ? "removido" : "adicionado";

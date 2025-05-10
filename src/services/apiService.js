@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+// Configuração base do Axios para todas as requisições
 const api = axios.create({
   baseURL: 'https://ghibliapi.vercel.app',
   timeout: 10000,
@@ -27,6 +28,7 @@ api.interceptors.response.use(
 );
 
 export const apiService = {
+  // Método para buscar todos os filmes
   async getMovies() {
     try {
       const response = await api.get('/films');
