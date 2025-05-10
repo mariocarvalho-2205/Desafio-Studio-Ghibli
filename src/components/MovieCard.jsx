@@ -22,7 +22,7 @@ export default function MovieCard({ movie }) {
   };
 
   return (
-    <div className="rounded-2xl border-none bg-white text-gray-800 shadow-md overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-xl hover:scale-[1.02] animate-fadeIn">
+    <div className="rounded-2xl border-none bg-white text-gray-800 shadow-md overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-xl hover:scale-[1.02] animate-fadeIn max-w-[280px] mx-auto">
       {/* Imagem */}
       <div className="relative aspect-[2/3] overflow-hidden">
         <img
@@ -67,18 +67,18 @@ export default function MovieCard({ movie }) {
         </div>
       </div>
       {/* Conteudo */}
-      <div className="flex-grow p-4">
+      <div className="flex-grow p-3">
         {/* Titulo */}
-        <h2 className="text-xl font-bold text-indigo-700">{movie.title}</h2>
-        <div className="flex justify-between items-center text-sm text-gray-500 mb-2">
-          <span className="text-sm">
+        <h2 className="text-lg font-bold text-indigo-700 line-clamp-1">{movie.title}</h2>
+        <div className="flex justify-between items-center text-xs text-gray-500 mb-2">
+          <span>
             {movie.release_date} - {formatRunningTime(movie.running_time)}
           </span>
         </div>
 
         {/* Descrição */}
         <div className="mb-2">
-          <p className="text-sm text-gray-600 text-justify">
+          <p className="text-xs text-gray-600 text-justify line-clamp-3">
             <span
               dangerouslySetInnerHTML={{ __html: highlightedDescription }}
             />
@@ -87,29 +87,29 @@ export default function MovieCard({ movie }) {
       </div>
 
       {/* Seção de informações fixas */}
-      <div className="p-4 space-y-2">
-        <p className="text-sm text-gray-700">🎬 {movie.director}</p>
-        <p className="text-sm text-gray-700">📦 {movie.producer}</p>
-        <p className="text-sm text-gray-700">
+      <div className="p-3 space-y-1">
+        <p className="text-xs text-gray-700">🎬 {movie.director}</p>
+        <p className="text-xs text-gray-700">📦 {movie.producer}</p>
+        <p className="text-xs text-gray-700">
           ⏱️ {formatRunningTime(movie.running_time)}
         </p>
-        <p className="text-sm text-gray-700">⭐ {movie.rt_score}%</p>
-        <div className="h-6">
+        <p className="text-xs text-gray-700">⭐ {movie.rt_score}%</p>
+        <div className="h-5">
           <StarRating movie={movie} />
         </div>
       </div>
 
       {/* Seção de nota com altura fixa */}
-      <div className="px-4 h-[80px]">
+      <div className="px-3 h-[60px]">
         {movie.note ? (
           <div className="h-full rounded-2xl p-2 border border-blue-400 bg-blue-100">
-            <p className="text-sm text-blue-600">
+            <p className="text-xs text-blue-600 line-clamp-2">
               📝 <strong>Nota:</strong> {movie.note}
             </p>
           </div>
         ) : (
           <div className="h-full rounded-2xl p-2 border border-transparent">
-            <p className="text-sm text-transparent">
+            <p className="text-xs text-transparent">
               📝 <strong>Nota:</strong> Placeholder
             </p>
           </div>
@@ -117,34 +117,34 @@ export default function MovieCard({ movie }) {
       </div>
 
       {/* Botões com margem fixa */}
-      <div className="flex flex-wrap gap-2 p-4 mt-auto">
+      <div className="flex flex-wrap gap-1 p-3 mt-auto">
         <button
           onClick={() => toggleWatched(movie.id)}
-          className={`px-2 py-1 rounded text-sm transition ${
+          className={`px-2 py-1 rounded text-xs transition ${
             movie.watched
               ? "bg-green-200 text-green-800"
               : "bg-gray-200 text-gray-800"
           }`}
         >
-          {movie.watched ? "✔ Assistido" : "👁 Marcar Assistido"}
+          {movie.watched ? "✔ Assistido" : "👁 Assistido"}
         </button>
 
         <button
           onClick={() => toggleFavorite(movie.id)}
-          className={`px-2 py-1 rounded text-sm transition ${
+          className={`px-2 py-1 rounded text-xs transition ${
             movie.favorite
               ? "bg-yellow-200 text-yellow-800"
               : "bg-gray-200 text-gray-800"
           }`}
         >
-          {movie.favorite ? "⭐ Favorito" : "☆ Favoritar"}
+          {movie.favorite ? "⭐ Favorito" : "☆ Favorito"}
         </button>
 
         <button
           onClick={() => openNoteModal(movie.id)}
-          className="px-4 py-1 bg-blue-200 text-blue-800 text-sm rounded transition"
+          className="px-2 py-1 bg-blue-200 text-blue-800 text-xs rounded transition"
         >
-          {movie.note ? "✏️ Editar Nota" : "📝 Adicionar Nota"}
+          {movie.note ? "✏️ Editar" : "📝 Nota"}
         </button>
       </div>
     </div>
