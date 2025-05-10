@@ -2,29 +2,40 @@ import { useContext, useState, useEffect, useRef } from "react";
 import { MovieContext } from "../contexts/MovieContext";
 
 export default function NoteModal({ movie }) {
-  const { noteModalOpen, noteModalMovieId, closeNoteModal, movies, setMovies } =
-    useContext(MovieContext);
+  const { 
+    noteModalOpen, 
+    noteModalMovieId, 
+    closeNoteModal, 
+    movies, 
+    setMovies, 
+    personalRating, 
+    setPersonalRating,
+    showToast
+  } = useContext(MovieContext);
 
   const [note, setNote] = useState("");
   const modalRef = useRef(null);
   const textareaRef = useRef(null);
-  const { personalRating, setPersonalRating } = useContext(MovieContext);
-  const rating = personalRating[movie.id] || 0;
-
-  // Função para lidar com cliques nas estrelas
-  const handleStarClick = (starIndex) => {
-    // Se clicar na mesma estrela já selecionada, remove a avaliação
-    if (starIndex === 1 && rating === 1) {
-      setPersonalRating(movie.id, 0);
-    } else {
-      setPersonalRating(movie.id, starIndex);
-    }
-  };
 
   // Encontrar o filme selecionado pelo ID no contexto
   const selectedMovie = noteModalMovieId
     ? movies.find((m) => m.id === noteModalMovieId)
     : null;
+
+  // Obter a avaliação do filme selecionado
+  const rating = selectedMovie ? (personalRating[selectedMovie.id] || 0) : 0;
+
+  // Função para lidar com cliques nas estrelas
+  const handleStarClick = (starIndex) => {
+    if (!selectedMovie) return;
+    
+    // Se clicar na mesma estrela já selecionada, remove a avaliação
+    if (starIndex === rating) {
+      setPersonalRating(selectedMovie.id, 0);
+    } else {
+      setPersonalRating(selectedMovie.id, starIndex);
+    }
+  };
 
   // Atualizar a nota APENAS quando o modal abrir com um novo filme
   useEffect(() => {
@@ -36,7 +47,6 @@ export default function NoteModal({ movie }) {
   // Foco no textarea quando o modal abre
   useEffect(() => {
     if (noteModalOpen && textareaRef.current) {
-      // Pequeno delay para garantir que o DOM foi atualizado
       setTimeout(() => {
         textareaRef.current.focus();
       }, 50);
@@ -64,21 +74,22 @@ export default function NoteModal({ movie }) {
   if (!noteModalOpen || !selectedMovie) return null;
 
   const handleSave = () => {
+    const action = selectedMovie.note ? "atualizada" : "adicionada";
+    
     // Atualizar a nota do filme no estado global
     setMovies((prevMovies) =>
-    prevMovies.map((m) =>
-      m.id === selectedMovie.id
-        ? {
-            ...m,
-            note: note,
-            hasNote: note.trim().length > 0,
-            personalRating: personalRating[selectedMovie.id] || 0, // <-- adiciona isso
-          }
-        : m
-    )
-  );
+      prevMovies.map((m) =>
+        m.id === selectedMovie.id
+          ? { ...m, note: note, hasNote: note.trim().length > 0 }
+          : m
+      )
+    );
 
-  closeNoteModal();
+    // Mostrar toast antes de fechar o modal
+    showToast(`Nota ${action} para ${selectedMovie.title}`, "note");
+
+    // Fechar o modal
+    closeNoteModal();
   };
 
   // Manipular tecla Esc para fechar e Ctrl+Enter para salvar

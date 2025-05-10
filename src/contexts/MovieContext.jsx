@@ -18,6 +18,8 @@ export const MovieProvider = ({ children }) => {
   const [personalRating, setPersonalRatingState] = useState({});
   const [noteModalOpen, setNoteModalOpen] = useState(false);
   const [noteModalMovieId, setNoteModalMovieId] = useState(null);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("");
 
   // Log de estado para debug
   useEffect(() => {
@@ -26,37 +28,82 @@ export const MovieProvider = ({ children }) => {
     }
   }, [filters.sortField, filters.sortOrder]);
 
-  const setPersonalRating = (movieId, rating) => {
-    // Atualizar o rating no estado do contexto
-    setPersonalRatingState((prev) => ({
-      ...prev,
-      [movieId]: rating,
-    }));
+  // Carregar filmes e ratings na inicialização
+  useEffect(() => {
+    const savedMovies = localStorage.getItem("movies");
+    const savedRatings = localStorage.getItem("personalRatings");
     
-    // Também atualizar o rating no estado dos filmes para persistência
-    setMovies((prev) =>
-      prev.map((movie) =>
-        movie.id === movieId
-          ? { ...movie, personalRating: rating }
-          : movie
-      )
-    );
+    if (savedMovies) {
+      try {
+        const parsed = JSON.parse(savedMovies);
+        setMovies(parsed);
+      } catch (error) {
+        console.error("Erro ao carregar filmes do localStorage:", error);
+        fetchMoviesFromAPI();
+      }
+    } else {
+      fetchMoviesFromAPI();
+    }
+
+    if (savedRatings) {
+      try {
+        const parsed = JSON.parse(savedRatings);
+        setPersonalRatingState(parsed);
+      } catch (error) {
+        console.error("Erro ao carregar ratings do localStorage:", error);
+      }
+    }
+  }, []);
+
+  const showToast = (message, type) => {
+    setToastMessage(message);
+    setToastType(type);
+    setTimeout(() => {
+      setToastMessage("");
+      setToastType("");
+    }, 3000);
+  };
+
+  const setPersonalRating = (movieId, rating) => {
+    const movie = movies.find(m => m.id === movieId);
+    const action = rating === 0 ? "removida" : "adicionada";
+    
+    setPersonalRatingState((prev) => {
+      const newRatings = {
+        ...prev,
+        [movieId]: rating,
+      };
+      localStorage.setItem("personalRatings", JSON.stringify(newRatings));
+      return newRatings;
+    });
+
+    showToast(`Avaliação ${action} para ${movie.title}`, "rating");
   };
 
   const toggleFavorite = (id) => {
+    const movie = movies.find(m => m.id === id);
+    const action = movie.favorite ? "removido" : "adicionado";
+    
     setMovies((prev) =>
-      prev.map((movie) =>
-        movie.id === id ? { ...movie, favorite: !movie.favorite } : movie
+      prev.map((m) =>
+        m.id === id ? { ...m, favorite: !m.favorite } : m
       )
     );
+
+    showToast(`Filme ${action} aos favoritos`, "favorite");
   };
 
   const toggleWatched = (id) => {
+    const movie = movies.find(m => m.id === id);
+    const action = movie.watched ? "removido" : "marcado";
+    
     setMovies((prev) =>
-      prev.map((movie) =>
-        movie.id === id ? { ...movie, watched: !movie.watched } : movie
+      prev.map((m) =>
+        m.id === id ? { ...m, watched: !m.watched } : m
       )
     );
+
+    showToast(`Filme ${action} como assistido`, "watched");
   };
 
   const highlightSearch = (text) => {
@@ -152,31 +199,6 @@ export const MovieProvider = ({ children }) => {
     setNoteModalMovieId(null);
   };
 
-  // Carregar filmes e ratings na inicialização
-  useEffect(() => {
-    const savedMovies = localStorage.getItem("movies");
-    if (savedMovies) {
-      try {
-        const parsed = JSON.parse(savedMovies);
-        setMovies(parsed);
-
-        // Extrair todos os ratings dos filmes salvos
-        const ratings = {};
-        parsed.forEach((movie) => {
-          if (movie.personalRating) {
-            ratings[movie.id] = movie.personalRating;
-          }
-        });
-        setPersonalRatingState(ratings);
-      } catch (error) {
-        console.error("Erro ao carregar filmes do localStorage:", error);
-        fetchMoviesFromAPI();
-      }
-    } else {
-      fetchMoviesFromAPI();
-    }
-  }, []);
-
   // Função auxiliar para buscar filmes da API
   const fetchMoviesFromAPI = () => {
     fetch("https://ghibliapi.vercel.app/films")
@@ -225,6 +247,9 @@ export const MovieProvider = ({ children }) => {
         noteModalOpen,
         noteModalMovieId,
         highlightSearch,
+        toastMessage,
+        toastType,
+        showToast,
       }}
     >
       {children}

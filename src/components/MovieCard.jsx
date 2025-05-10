@@ -12,7 +12,7 @@ export default function MovieCard({ movie }) {
     openNoteModal
   } = useContext(MovieContext);
   
-  const rating = movie.personalRating || 0;
+  const rating = personalRating[movie.id] || 0;
   const highlightedDescription = highlightSearch(movie.description);
 
   const formatRunningTime = (minutes) => {
@@ -92,7 +92,9 @@ export default function MovieCard({ movie }) {
           ⏱️ {formatRunningTime(movie.running_time)}
         </p>
         <p className="text-sm text-gray-700">⭐ {movie.rt_score}%</p>
-        <StarRating movie={movie} />
+        <div className="h-6">
+          <StarRating movie={movie} />
+        </div>
 
         <div className="min-h-[60px] mt-2">
           {movie.note ? (
@@ -139,8 +141,6 @@ export default function MovieCard({ movie }) {
           {movie.note ? "✏️ Editar Nota" : "📝 Adicionar Nota"}
         </button>
       </div>
-      
-      {/* Não incluir o NoteModal dentro do MovieCard */}
     </div>
   );
 }
