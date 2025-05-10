@@ -59,9 +59,9 @@ export const MovieProvider = ({ children }) => {
     setToastMessage(message);
     setToastType(type);
     setTimeout(() => {
-      setToastMessage("");
-      setToastType("");
-    }, 3000);
+      setToastMessage(null);
+      setToastType(null);
+    }, 1500);
   };
 
   const setPersonalRating = (movieId, rating) => {

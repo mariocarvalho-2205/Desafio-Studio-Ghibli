@@ -82,7 +82,7 @@ export default function MovieCard({ movie }) {
         </div>
 
         {/* Descrição */}
-        <div className="mb-2">
+        <div className="mb-1">
           <div className="relative">
             <p className={`text-xs text-gray-600 text-justify transition-all duration-300 ${isExpanded ? '' : 'line-clamp-3'}`}>
               <span
