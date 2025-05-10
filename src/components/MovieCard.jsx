@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { MovieContext } from "../contexts/MovieContext";
 import StarRating from "./StarRating";
 import NoteModal from "./NoteModal";
@@ -12,6 +12,7 @@ export default function MovieCard({ movie }) {
     openNoteModal
   } = useContext(MovieContext);
   
+  const [isExpanded, setIsExpanded] = useState(false);
   const rating = personalRating[movie.id] || 0;
   const highlightedDescription = highlightSearch(movie.description);
 
@@ -19,6 +20,10 @@ export default function MovieCard({ movie }) {
     const hrs = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `${hrs}h ${mins}min`;
+  };
+
+  const toggleDescription = () => {
+    setIsExpanded(!isExpanded);
   };
 
   return (
@@ -78,11 +83,19 @@ export default function MovieCard({ movie }) {
 
         {/* Descrição */}
         <div className="mb-2">
-          <p className="text-xs text-gray-600 text-justify line-clamp-3">
-            <span
-              dangerouslySetInnerHTML={{ __html: highlightedDescription }}
-            />
-          </p>
+          <div className="relative">
+            <p className={`text-xs text-gray-600 text-justify transition-all duration-300 ${isExpanded ? '' : 'line-clamp-3'}`}>
+              <span
+                dangerouslySetInnerHTML={{ __html: highlightedDescription }}
+              />
+            </p>
+            <button
+              onClick={toggleDescription}
+              className="text-xs text-indigo-600 hover:text-indigo-800 font-medium mt-1 transition-colors"
+            >
+              {isExpanded ? 'Ver menos' : 'Ver mais'}
+            </button>
+          </div>
         </div>
       </div>
 
