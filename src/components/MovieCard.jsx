@@ -85,7 +85,9 @@ export default function MovieCard({ movie }) {
           </p>
         </div>
       </div>
-      <div className="p-4 min-h-[140px]">
+
+      {/* Seção de informações fixas */}
+      <div className="p-4 space-y-2">
         <p className="text-sm text-gray-700">🎬 {movie.director}</p>
         <p className="text-sm text-gray-700">📦 {movie.producer}</p>
         <p className="text-sm text-gray-700">
@@ -95,23 +97,27 @@ export default function MovieCard({ movie }) {
         <div className="h-6">
           <StarRating movie={movie} />
         </div>
-
-        <div className="min-h-[60px] mt-2">
-          {movie.note ? (
-            <div className="min-h-[60px] rounded-2xl p-2 border border-blue-400 bg-blue-100">
-              <p className="text-sm text-blue-600">
-                📝 <strong>Nota:</strong> {movie.note}
-              </p>
-            </div>
-          ) : (
-            <p className="invisible text-sm">
-              📝 <strong>Nota:</strong> Placeholder
-            </p>
-          )}
-        </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 mt-2 p-4">
+      {/* Seção de nota com altura fixa */}
+      <div className="px-4 h-[80px]">
+        {movie.note ? (
+          <div className="h-full rounded-2xl p-2 border border-blue-400 bg-blue-100">
+            <p className="text-sm text-blue-600">
+              📝 <strong>Nota:</strong> {movie.note}
+            </p>
+          </div>
+        ) : (
+          <div className="h-full rounded-2xl p-2 border border-transparent">
+            <p className="text-sm text-transparent">
+              📝 <strong>Nota:</strong> Placeholder
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Botões com margem fixa */}
+      <div className="flex flex-wrap gap-2 p-4 mt-auto">
         <button
           onClick={() => toggleWatched(movie.id)}
           className={`px-2 py-1 rounded text-sm transition ${
@@ -136,7 +142,7 @@ export default function MovieCard({ movie }) {
 
         <button
           onClick={() => openNoteModal(movie.id)}
-          className="px-2 py-1 bg-blue-200 text-blue-800 text-sm rounded transition"
+          className="px-4 py-1 bg-blue-200 text-blue-800 text-sm rounded transition"
         >
           {movie.note ? "✏️ Editar Nota" : "📝 Adicionar Nota"}
         </button>
