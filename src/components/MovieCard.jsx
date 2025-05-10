@@ -4,14 +4,15 @@ import StarRating from "./StarRating";
 import NoteModal from "./NoteModal";
 
 export default function MovieCard({ movie }) {
-  const {
-    toggleFavorite,
-    toggleWatched,
-    openNoteModal,
-    highlightSearch,
+  const { 
+    toggleFavorite, 
+    toggleWatched, 
+    highlightSearch, 
     personalRating,
+    openNoteModal
   } = useContext(MovieContext);
-  const rating = personalRating[movie.id] || 0;
+  
+  const rating = movie.personalRating || 0;
   const highlightedDescription = highlightSearch(movie.description);
 
   const formatRunningTime = (minutes) => {
@@ -68,7 +69,7 @@ export default function MovieCard({ movie }) {
       {/* Conteudo */}
       <div className="flex-grow p-4">
         {/* Titulo */}
-        <h2 className="ttext-xl font-bold text-indigo-700">{movie.title}</h2>
+        <h2 className="text-xl font-bold text-indigo-700">{movie.title}</h2>
         <div className="flex justify-between items-center text-sm text-gray-500 mb-2">
           <span className="text-sm">
             {movie.release_date} - {formatRunningTime(movie.running_time)}
@@ -92,8 +93,6 @@ export default function MovieCard({ movie }) {
         </p>
         <p className="text-sm text-gray-700">⭐ {movie.rt_score}%</p>
         <StarRating movie={movie} />
-
-        {movie.note && <div className=""></div>}
 
         <div className="min-h-[60px] mt-2">
           {movie.note ? (
@@ -140,8 +139,8 @@ export default function MovieCard({ movie }) {
           {movie.note ? "✏️ Editar Nota" : "📝 Adicionar Nota"}
         </button>
       </div>
-
-      <NoteModal movie={movie} />
+      
+      {/* Não incluir o NoteModal dentro do MovieCard */}
     </div>
   );
 }

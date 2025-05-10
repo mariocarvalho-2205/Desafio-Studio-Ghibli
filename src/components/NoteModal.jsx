@@ -1,97 +1,165 @@
-import { useContext, useState, useEffect, useCallback } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import { MovieContext } from "../contexts/MovieContext";
 
-export default function NoteModal() {
-  const { noteModalMovieId, movies, closeNoteModal, addNoteToMovie } =
+export default function NoteModal({ movie }) {
+  const { noteModalOpen, noteModalMovieId, closeNoteModal, movies, setMovies } =
     useContext(MovieContext);
 
-  // Evita que o modal seja re-renderizado de forma desnecessária
-  const movie = movies.find((m) => m.id === noteModalMovieId);
   const [note, setNote] = useState("");
-  const [rating, setRating] = useState(0);
+  const modalRef = useRef(null);
+  const textareaRef = useRef(null);
+  const { personalRating, setPersonalRating } = useContext(MovieContext);
+  const rating = personalRating[movie.id] || 0;
 
-  const setMovieData = useCallback(() => {
-    if (movie) {
-      setNote(movie.note || "");
-      setRating(movie.personalRating || 0);
+  // Função para lidar com cliques nas estrelas
+  const handleStarClick = (starIndex) => {
+    // Se clicar na mesma estrela já selecionada, remove a avaliação
+    if (starIndex === 1 && rating === 1) {
+      setPersonalRating(movie.id, 0);
+    } else {
+      setPersonalRating(movie.id, starIndex);
     }
-  }, [movie]);
-
-  useEffect(() => {
-    setMovieData();
-  }, [movie, setMovieData]);
-
-  if (!noteModalMovieId || !movie) return null;
-
-  const handleStarClick = (value) => {
-    setRating((prev) => (prev === value ? 0 : value));
   };
 
+  // Encontrar o filme selecionado pelo ID no contexto
+  const selectedMovie = noteModalMovieId
+    ? movies.find((m) => m.id === noteModalMovieId)
+    : null;
+
+  // Atualizar a nota APENAS quando o modal abrir com um novo filme
+  useEffect(() => {
+    if (noteModalOpen && selectedMovie) {
+      setNote(selectedMovie.note || "");
+    }
+  }, [noteModalOpen, selectedMovie?.id]);
+
+  // Foco no textarea quando o modal abre
+  useEffect(() => {
+    if (noteModalOpen && textareaRef.current) {
+      // Pequeno delay para garantir que o DOM foi atualizado
+      setTimeout(() => {
+        textareaRef.current.focus();
+      }, 50);
+    }
+  }, [noteModalOpen]);
+
+  // Fechar o modal ao clicar fora
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        closeNoteModal();
+      }
+    }
+
+    if (noteModalOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [noteModalOpen, closeNoteModal]);
+
+  // Não renderizar nada se o modal estiver fechado ou não houver filme selecionado
+  if (!noteModalOpen || !selectedMovie) return null;
+
   const handleSave = () => {
-    addNoteToMovie(movie.id, note, rating);
-    closeNoteModal();
+    // Atualizar a nota do filme no estado global
+    setMovies((prevMovies) =>
+    prevMovies.map((m) =>
+      m.id === selectedMovie.id
+        ? {
+            ...m,
+            note: note,
+            hasNote: note.trim().length > 0,
+            personalRating: personalRating[selectedMovie.id] || 0, // <-- adiciona isso
+          }
+        : m
+    )
+  );
+
+  closeNoteModal();
+  };
+
+  // Manipular tecla Esc para fechar e Ctrl+Enter para salvar
+  const handleKeyDown = (e) => {
+    if (e.key === "Escape") {
+      closeNoteModal();
+    } else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      handleSave();
+    }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-      <div className="bg-white p-4 rounded max-w-md w-full relative shadow-lg">
-        {/* Botão X de fechar */}
-        <button
-          onClick={closeNoteModal}
-          className="absolute top-2 right-2 text-gray-600 hover:text-red-600 text-xl"
-          aria-label="Fechar"
-        >
-          &times;
-        </button>
-
-        <h2 className="text-xl font-bold mb-2">Anotação para {movie.title}</h2>
-
-        <div className="mb-3">
-          <p className="text-sm text-gray-600 mb-1 font-semibold">
-            Sua Avaliação:
-          </p>
-          <div className="flex items-center gap-1">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+      onKeyDown={handleKeyDown}
+    >
+      <div
+        ref={modalRef}
+        className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full"
+      >
+        <h2 className="text-lg font-bold mb-2 text-indigo-700">
+          {selectedMovie.note ? "Editar" : "Adicionar"} Nota para:{" "}
+          {selectedMovie.title}
+        </h2>
+        <div className="flex items-center mb-2 mt-2">
+          <div className="text-sm font-medium mr-2">
+            <p>Sua avaliação:</p>
+          </div>
+          <div className="flex">
             {[1, 2, 3, 4, 5].map((star) => (
-              <span
+              <button
                 key={star}
+                type="button"
                 onClick={() => handleStarClick(star)}
-                className={`cursor-pointer text-2xl ${
-                  star <= rating ? "text-yellow-400" : "text-gray-300"
-                }`}
+                className="focus:outline-none"
               >
-                ★
-              </span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill={rating >= star ? "currentColor" : "none"}
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className={`transition-colors ${
+                    rating >= star ? "text-yellow-400" : "text-gray-300"
+                  }`}
+                >
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+              </button>
             ))}
-            <span className="ml-2 text-sm text-gray-600">
-              {rating > 0
-                ? `${rating} estrela${rating > 1 ? "s" : ""}`
-                : "Not Rated"}
-            </span>
+          </div>
+          <div className="ml-2 text-xs text-gray-500">
+            {rating > 0 ? `${rating}/5` : "Not rated"}
           </div>
         </div>
-
-        <p className="text-sm text-gray-600 mb-1 font-semibold">
-          Sua Anotação:
-        </p>
-
-        {/* Ajustes no textarea */}
+        <div className="text-sm font-medium mr-2">
+          <p>Sua nota:</p>
+        </div>
         <textarea
-          className="w-full border p-2 rounded h-32 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-          rows={4}
+          ref={textareaRef}
+          className="w-full p-2 border border-gray-300 rounded mb-4 resize-none"
+          rows={5}
           value={note}
           onChange={(e) => setNote(e.target.value)}
+          placeholder="Escreva sua nota aqui..."
+          style={{ minHeight: "120px" }}
         />
-
-        <div className="flex justify-end gap-2 mt-2">
+        <div className="flex justify-end gap-2">
           <button
+            className="px-4 py-2 text-sm rounded bg-gray-300 text-gray-800"
             onClick={closeNoteModal}
-            className="bg-gray-300 px-4 py-2 rounded"
+            type="button"
           >
             Cancelar
           </button>
           <button
+            className="px-4 py-2 text-sm rounded bg-blue-500 text-white"
             onClick={handleSave}
-            className="bg-blue-500 text-white px-4 py-2 rounded"
+            type="button"
           >
             Salvar
           </button>

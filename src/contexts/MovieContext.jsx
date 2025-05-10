@@ -16,6 +16,7 @@ export const MovieProvider = ({ children }) => {
   const [search, setSearch] = useState("");
   const [includeSynopsis, setIncludeSynopsis] = useState(true);
   const [personalRating, setPersonalRatingState] = useState({});
+  const [noteModalOpen, setNoteModalOpen] = useState(false);
   const [noteModalMovieId, setNoteModalMovieId] = useState(null);
 
   // Log de estado para debug
@@ -26,10 +27,20 @@ export const MovieProvider = ({ children }) => {
   }, [filters.sortField, filters.sortOrder]);
 
   const setPersonalRating = (movieId, rating) => {
+    // Atualizar o rating no estado do contexto
     setPersonalRatingState((prev) => ({
       ...prev,
       [movieId]: rating,
     }));
+    
+    // Também atualizar o rating no estado dos filmes para persistência
+    setMovies((prev) =>
+      prev.map((movie) =>
+        movie.id === movieId
+          ? { ...movie, personalRating: rating }
+          : movie
+      )
+    );
   };
 
   const toggleFavorite = (id) => {
@@ -48,25 +59,6 @@ export const MovieProvider = ({ children }) => {
     );
   };
 
-  const openNoteModal = (id) => {
-    setNoteModalMovieId(id);
-  };
-
-  const closeNoteModal = () => {
-    setNoteModalMovieId(null);
-  };
-
-  const addNoteToMovie = (id, note, personalRatingValue) => {
-    const updated = movies.map((movie) =>
-      movie.id === id
-        ? { ...movie, note, personalRating: personalRatingValue }
-        : movie
-    );
-    setMovies(updated);
-    setPersonalRating(id, personalRatingValue);
-    localStorage.setItem("movies", JSON.stringify(updated));
-  };
-
   const highlightSearch = (text) => {
     if (!search) return text;
     const regex = new RegExp(`(${search})`, "gi");
@@ -77,44 +69,40 @@ export const MovieProvider = ({ children }) => {
   const sortMovies = (a, b) => {
     // Se não há campo de ordenação, retorna a ordem original
     if (!filters.sortField) return 0;
-    
+
     const field = filters.sortField;
     const order = filters.sortOrder === "asc" ? 1 : -1;
-    
+
     // Determina os valores para comparação com base no campo
     let valA, valB;
-    
+
     if (field === "stars") {
       // Para ordenação por estrelas, usamos personalRating
       valA = personalRating[a.id] || 0;
       valB = personalRating[b.id] || 0;
-    } 
-    else if (field === "rt_score") {
+    } else if (field === "rt_score") {
       // Score é sempre numérico, vamos garantir isso
       valA = parseFloat(a.rt_score) || 0;
       valB = parseFloat(b.rt_score) || 0;
-    }
-    else if (field === "running_time") {
+    } else if (field === "running_time") {
       // Duração é sempre numérica
       valA = parseFloat(a.running_time) || 0;
       valB = parseFloat(b.running_time) || 0;
-    }
-    else if (field === "release_date") {
+    } else if (field === "release_date") {
       // Data de lançamento - converter para inteiro
       valA = parseInt(a.release_date, 10) || 0;
       valB = parseInt(b.release_date, 10) || 0;
-    }
-    else {
+    } else {
       // Para outros campos como título
       valA = a[field];
       valB = b[field];
     }
-    
+
     // Ordenação específica para strings
     if (typeof valA === "string" && typeof valB === "string") {
       return order * valA.localeCompare(valB);
     }
-    
+
     // Ordenação numérica padrão
     return order * (valA - valB);
   };
@@ -154,37 +142,62 @@ export const MovieProvider = ({ children }) => {
     })
     .sort(sortMovies);
 
+  const openNoteModal = (movieId) => {
+    setNoteModalMovieId(movieId);
+    setNoteModalOpen(true);
+  };
+  
+  const closeNoteModal = () => {
+    setNoteModalOpen(false);
+    setNoteModalMovieId(null);
+  };
+
+  // Carregar filmes e ratings na inicialização
   useEffect(() => {
     const savedMovies = localStorage.getItem("movies");
     if (savedMovies) {
-      const parsed = JSON.parse(savedMovies);
-      setMovies(parsed);
+      try {
+        const parsed = JSON.parse(savedMovies);
+        setMovies(parsed);
 
-      const ratings = {};
-      parsed.forEach((movie) => {
-        if (movie.personalRating) {
-          ratings[movie.id] = movie.personalRating;
-        }
-      });
-      setPersonalRatingState(ratings);
-    } else {
-      fetch("https://ghibliapi.vercel.app/films")
-        .then((res) => res.json())
-        .then((data) => {
-          const formatted = data.map((movie) => ({
-            ...movie,
-            watched: false,
-            favorite: false,
-            hasNote: false,
-            note: "",
-            stars: 0,
-            personalRating: 0,
-          }));
-          setMovies(formatted);
+        // Extrair todos os ratings dos filmes salvos
+        const ratings = {};
+        parsed.forEach((movie) => {
+          if (movie.personalRating) {
+            ratings[movie.id] = movie.personalRating;
+          }
         });
+        setPersonalRatingState(ratings);
+      } catch (error) {
+        console.error("Erro ao carregar filmes do localStorage:", error);
+        fetchMoviesFromAPI();
+      }
+    } else {
+      fetchMoviesFromAPI();
     }
   }, []);
 
+  // Função auxiliar para buscar filmes da API
+  const fetchMoviesFromAPI = () => {
+    fetch("https://ghibliapi.vercel.app/films")
+      .then((res) => res.json())
+      .then((data) => {
+        const formatted = data.map((movie) => ({
+          ...movie,
+          watched: false,
+          favorite: false,
+          hasNote: false,
+          note: "",
+          personalRating: 0,
+        }));
+        setMovies(formatted);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar filmes da API:", error);
+      });
+  };
+
+  // Salvar filmes quando houver mudanças
   useEffect(() => {
     if (movies.length > 0) {
       localStorage.setItem("movies", JSON.stringify(movies));
@@ -207,10 +220,10 @@ export const MovieProvider = ({ children }) => {
         filteredMovies,
         toggleFavorite,
         toggleWatched,
-        noteModalMovieId,
         openNoteModal,
         closeNoteModal,
-        addNoteToMovie,
+        noteModalOpen,
+        noteModalMovieId,
         highlightSearch,
       }}
     >
