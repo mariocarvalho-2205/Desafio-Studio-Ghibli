@@ -9,21 +9,6 @@ import Toast from "../components/Toast";
 const Home = () => {
   const { filteredMovies = [] } = useContext(MovieContext);
 
-  function MovieList() {
-    const { filteredMovies } = useContext(MovieContext);
-    
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6">
-        {filteredMovies.map(movie => (
-          <MovieCard key={movie.id} movie={movie} />
-        ))}
-        
-        {/* O NoteModal deve ser instanciado uma única vez fora dos cards */}
-        <NoteModal movie={filteredMovies}/>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 animate-fadeIn">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -50,7 +35,9 @@ const Home = () => {
             </div>
           ))}
         </div>
-        <MovieList />
+
+        {/* O NoteModal deve ser instanciado uma única vez fora dos cards */}
+        <NoteModal movie={filteredMovies}/>
         <Toast />
       </div>
     </div>
