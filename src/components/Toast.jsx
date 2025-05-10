@@ -25,7 +25,7 @@ export default function Toast() {
   return (
     <div 
       className={`${notificationService.getToastStyles(toastType)} transform transition-all duration-250 ease-in-out ${
-        isExiting ? 'translate-x-[120%] opacity-0' : 'translate-x-0 opacity-100'
+        isExiting ? 'animate-slide-out' : 'animate-slide-in'
       }`}
       style={{ willChange: 'transform, opacity' }}
     >

@@ -1,124 +1,105 @@
 # Studio Ghibli Collection
 
-Uma aplicação web para explorar e gerenciar sua coleção de filmes do Studio Ghibli. Desenvolvida com React e Tailwind CSS, oferece uma experiência interativa para os fãs dos filmes do Studio Ghibli.
+Uma aplicação web moderna para explorar e gerenciar sua coleção de filmes do Studio Ghibli.
 
 ## 🚀 Tecnologias Utilizadas
 
-- **React** - Biblioteca JavaScript para construção de interfaces
-- **Tailwind CSS** - Framework CSS para estilização
-- **Context API** - Gerenciamento de estado global
-- **LocalStorage** - Persistência de dados no navegador
-- **GitHub Pages** - Hospedagem da aplicação
+- React
+- Vite
+- Tailwind CSS
+- Axios
+- Context API
+- LocalStorage
 
-## 📋 Requisitos Implementados
+## ✨ Funcionalidades
 
-### Funcionalidades Principais
-- [x] Listagem de filmes do Studio Ghibli
-- [x] Sistema de busca por título e sinopse
-- [x] Filtros por:
-  - [x] Favoritos
-  - [x] Assistidos
-  - [x] Notas
-  - [x] Avaliações (estrelas)
-- [x] Ordenação por:
-  - [x] Título
-  - [x] Data de lançamento
-  - [x] Duração
-  - [x] Pontuação RT
-  - [x] Avaliação pessoal
+- Visualização de filmes do Studio Ghibli
+- Sistema de busca com suporte a sinopse
+- Filtros por:
+  - Favoritos
+  - Assistidos
+  - Notas
+  - Avaliações (1-5 estrelas)
+- Sistema de avaliação com estrelas
+- Notas personalizadas para cada filme
+- Animações suaves e responsivas
+- Notificações toast para feedback de ações
+- Persistência de dados no localStorage
+- Design responsivo e moderno
 
-### Recursos de Usuário
-- [x] Marcar filmes como favoritos
-- [x] Marcar filmes como assistidos
-- [x] Adicionar notas pessoais
-- [x] Sistema de avaliação com estrelas
-- [x] Notificações toast para feedback de ações
+## 🛠️ Implementações Recentes
 
-### Interface
-- [x] Design responsivo (4 breakpoints)
-- [x] Animações suaves
-- [x] Cards interativos
-- [x] Modal para notas
-- [x] Sistema de notificações toast
-- [x] Destaque de termos na busca
+### Gerenciamento de Estado e API
+- Implementação do Axios para requisições HTTP
+- Melhor gerenciamento de estado assíncrono
+- Tratamento de erros robusto
+- Loading states e feedback visual
+- Interceptors para tratamento global de erros
 
-## 🛠️ Instalação e Execução
+### Animações e UI
+- Animações personalizadas via Tailwind CSS
+- Transições suaves para todos os elementos
+- Toast notifications com animações
+- Loading spinner durante carregamentos
+- Mensagens de erro amigáveis
 
-### Pré-requisitos
-- Node.js (versão 14 ou superior)
-- npm ou yarn
+### Arquitetura e Organização
+- Separação em microserviços
+- Serviços dedicados para:
+  - API (Axios)
+  - Filmes
+  - Notificações
+- Clean Code e boas práticas
+- Melhor organização do projeto
 
-### Passos para Instalação
+## 🚀 Como Executar
 
-1. Clone o repositório:
-```bash
-git clone https://github.com/seu-usuario/studio-ghibli-collection.git
-cd studio-ghibli-collection
-```
-
+1. Clone o repositório
 2. Instale as dependências:
 ```bash
 npm install
-# ou
-yarn install
 ```
-
-3. Execute o projeto em modo de desenvolvimento:
+3. Execute o projeto:
 ```bash
 npm run dev
-# ou
-yarn dev
 ```
 
-4. Acesse a aplicação:
+## 📦 Estrutura do Projeto
+
 ```
-http://localhost:5173
-```
-
-### Build para Produção
-
-Para criar uma versão otimizada para produção:
-
-```bash
-npm run build
-# ou
-yarn build
+src/
+├── components/     # Componentes React
+├── contexts/       # Contextos (MovieContext)
+├── services/       # Serviços (API, Filmes, Notificações)
+├── pages/         # Páginas da aplicação
+├── styles/        # Estilos globais
+└── utils/         # Utilitários
 ```
 
-## 📱 Responsividade
+## 🎨 Design e UX
 
-A aplicação é totalmente responsiva com 4 breakpoints:
-- Mobile: 1 card por linha
-- SM (640px+): 2 cards por linha
-- LG (1024px+): 3 cards por linha
-- XL (1280px+): 4 cards por linha
+- Interface moderna e intuitiva
+- Animações suaves e responsivas
+- Feedback visual para todas as ações
+- Design responsivo para todos os dispositivos
+- Cores e estilos consistentes
 
-## 🎨 Recursos Visuais
+## 🔄 Fluxo de Dados
 
-- Cards com efeito hover
-- Animações de entrada e saída
-- Notificações toast coloridas por tipo de ação
-- Gradiente de fundo suave
-- Ícones intuitivos para ações
+1. Carregamento inicial:
+   - Verifica localStorage
+   - Busca dados da API se necessário
+   - Exibe loading state durante carregamento
 
-## 💾 Persistência de Dados
+2. Interações do usuário:
+   - Feedback imediato via toast notifications
+   - Persistência automática no localStorage
+   - Tratamento de erros com mensagens amigáveis
 
-Os dados do usuário são salvos localmente:
-- Favoritos
-- Status de assistidos
-- Notas pessoais
-- Avaliações com estrelas
+## 🛠️ Melhorias Futuras
 
-## 🔍 Busca e Filtros
-
-- Busca em tempo real
-- Filtros combinados
-- Destaque visual dos termos buscados
-- Opção de incluir/excluir sinopse na busca
-
-## ⭐ Avaliação
-
-- Sistema de 5 estrelas
-- Visualização clara da avaliação atual
-- Possibilidade de remover avaliação
-- Integração com sistema de filtros
+- [ ] Implementar testes unitários
+- [ ] Adicionar mais filtros e ordenações
+- [ ] Melhorar acessibilidade
+- [ ] Implementar temas (claro/escuro)
+- [ ] Adicionar mais animações e transições
