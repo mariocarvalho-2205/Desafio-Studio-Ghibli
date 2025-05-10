@@ -4,25 +4,25 @@ import FilterPanel from "../components/FilterPanel";
 import MovieCard from "../components/MovieCard"; 
 import { MovieContext } from "../contexts/MovieContext";
 import NoteModal from "../components/NoteModal";
+import Toast from "../components/Toast";
+
 const Home = () => {
   const { filteredMovies = [] } = useContext(MovieContext);
 
-
-
   function MovieList() {
-  const { filteredMovies } = useContext(MovieContext);
-  
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-      {filteredMovies.map(movie => (
-        <MovieCard key={movie.id} movie={movie} />
-      ))}
-      
-      {/* O NoteModal deve ser instanciado uma única vez fora dos cards */}
-      <NoteModal movie={filteredMovies}/>
-    </div>
-  );
-}
+    const { filteredMovies } = useContext(MovieContext);
+    
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+        {filteredMovies.map(movie => (
+          <MovieCard key={movie.id} movie={movie} />
+        ))}
+        
+        {/* O NoteModal deve ser instanciado uma única vez fora dos cards */}
+        <NoteModal movie={filteredMovies}/>
+      </div>
+    );
+  }
 
   return (
     <div className="px-4 sm:px-6 md:px-10 lg:px-20 xl:px-32 py-10 bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen animate-fadeIn">
@@ -49,7 +49,8 @@ const Home = () => {
           </div>
         ))}
       </div>
-       <MovieList />
+      <MovieList />
+      <Toast />
     </div>
   );
 };
